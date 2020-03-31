@@ -1,0 +1,157 @@
+.listItem{
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.job_item {
+  width: 100%;
+  height: 23vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 0.5vw;
+  padding: 1.5vw 4.5vw;
+  background-color: #fff;
+  .job_left {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 1;
+    justify-content: space-between;
+    width: 60%;
+    .job_name {
+      height: 9vw;
+      color: #090909;
+      font-weight: 500;
+      font-size: 5vw;
+      line-height: 9vw;
+    }
+    .enterprise_info {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      height: 4vw;
+      .enterprise_logo {
+        width: 4vw;
+        height: 4vw;
+        border-radius: 50%;
+      }
+      .enterprise_name {
+        margin-left: 1vw;
+        color: #5d5d5d;
+        font-size: 3.8vw;
+      }
+    }
+    .tags_list {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-start;
+      .tag {
+        margin-right: 1vw;
+        margin-bottom: 1vw;
+        padding: 0.5vw 1vw;
+        color: #007BFE;
+        font-size: 2.8vw;
+        background: #ECF3FD;
+        border-radius: 0.5vw;
+      }
+    }
+  }
+  .job_right {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 1;
+    align-items: flex-end;
+    justify-content: space-between;
+    text-align: right;
+    width: 40%;
+    .job_salary {
+      height: 7vw;
+      color: #ff0538;
+      font-weight: 600;
+      font-size: 5.5vw;
+      line-height: 7vw;
+      position: absolute;
+      top: 3vw;
+      width: 100%;
+    }
+    .call_enterprise {
+      padding: 1.5vw 5vw;
+      color: #2c2c2c;
+      font-weight: 500;
+      font-size: 3.4vw;
+      background-color: #ff0;
+      border-radius: 2vw;
+      position: absolute;
+      bottom: 9vw;
+    }
+    .distance_model {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      position: absolute;
+      bottom: 3vw;
+      .distance {
+        color: #8c8c8c;
+        font-size: 3.8vw;
+      }
+      img {
+        width: 2vw;
+        height: 2.4vw;
+        margin-left: 1vw;
+      }
+    }
+  }
+}
+.manufacturing_modal {
+  position: relative;
+  width: 100%;
+  height: 29vw;
+  .manufacturing_img {
+    width: 100%;
+    height: 100%;
+  }
+  .manufacturing_name {
+    position: absolute;
+    top: 3.6vw;
+    left: 4.8vw;
+    color: rgba(255, 255, 255, 1);
+    font-weight: 600;
+    font-size: 6vw;
+  }
+  .manufacturing_description {
+    position: absolute;
+    top: 13vw;
+    left: 4.8vw;
+    color: rgba(255, 255, 255, 1);
+    font-weight: 600;
+    font-size: 2.6vw;
+  }
+  .manufacturing_tags {
+    position: absolute;
+    top: 20vw;
+    left: 4.8vw;
+    color: rgba(255, 255, 255, 1);
+    font-weight: 600;
+    font-size: 4.2vw;
+  }
+  .manufacturing_tags .tag {
+    float: left;
+    margin-right: 2vw;
+    padding: 0 2.2vw;
+    color: #bf3902;
+    font-weight: 600;
+    font-size: 2.4vw;
+    background-color: #ffd741;
+    border-radius: 0.3vw;
+  }
+  .manufacturing_salary {
+    position: absolute;
+    right: 3.2vw;
+    top: 4vw;
+    color: rgba(255, 255, 255, 1);
+    font-weight: 600;
+    font-size: 7vw;
+    text-align: center;
+  }
+}

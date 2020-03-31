@@ -1,0 +1,413 @@
+import {action, observable, runInAction, toJS} from 'mobx';
+import { getList, getPost, getBroker, brokerShareBind, happenCounts, getWXShareParam, getShareText } from "@/services/detail";
+import { isEmpty, bgps_gps, getUrlParam, getRTime } from "@/lib/base/common";
+import region from "@/json/region";
+import { getStorage, setStorage } from "@/lib/base/storage";
+import cookie from 'react-cookies';
+import md5 from 'md5';
+import ToastStore from '@/components/toast/store'
+const { toastClick } = ToastStore;
+
+export const TypeForGetListData = {
+  Normal: 'normal',
+  Search: 'search'
+}
+
+const $store = observable({
+  ToList: [],
+  // 岗位名
+  searchName:'',
+  setSearchName:(newVal) => {
+    $store.searchName = newVal
+  },
+  // 排序
+  SortId:0,
+  updateSortId:(newVal) => {
+    $store.SortId = newVal
+  },
+  // 薪资
+  SalaryRoundId:0,
+  updateSalaryRoundId:(newVal) => {
+    $store.SalaryRoundId = newVal
+  },
+  // 行业
+  IndustryId:0,
+  getIndustryId: (newVal) => {
+    $store.IndustryId = newVal;
+  },
+  // 岗位
+  choiceId:[],
+  updateChoiceId:(newVal) => {
+    $store.choiceId = newVal
+  },
+  choiceList:[],
+  addChoicePost: async (newVal) => {
+    $store.choiceList = newVal;
+  },
+  firstPostSearch:[],
+  getFirstPostSearch: (val) => {
+    $store.firstPostSearch = val;
+  },
+  allPost:[],
+  setAllPost: (val) => {
+    $store.allPost = val;
+  },
+  // 区域
+  AreaId:0,
+  updateAreaId:(newVal) => {
+    $store.AreaId = newVal
+  },
+  // 是否疫情岗位
+  isPneumonia: false,
+  setIsPneumonia:(newVal) => {
+    $store.isPneumonia = newVal
+  },
+  postList:[],
+
+  isFrom:'index',
+  setIsFrom: (val) =>{
+    $store.isFrom = val
+  },
+  personalChoiceList:[],
+  addPersonalPost: async (newVal) => {
+    $store.personalChoiceList = newVal;
+  },
+  getPersonalIndustryId: (newVal) => {
+    $store.PersonalIndustryId = newVal;
+  },
+  PersonalIndustryId:0,
+  // loadingMore:false,
+  // setLoadingMore: (loadingMore = false) => {
+  //   $store.loadingMore = !!loadingMore;
+  // },
+  tabId:0,
+  setTabId: (newVal) => {
+    $store.tabId = newVal;
+  },
+  // 区域
+  firstAreaId:0,
+  updateFirstAreaId:(newVal) => {
+    $store.firstAreaId = newVal
+  },
+  secondAreaId: '',
+  updateSecondAreaId:(newVal) => {
+    $store.secondAreaId = newVal
+  },
+  thirdAreaId: '',
+  updateThirdAreaId:(newVal) => {
+    $store.thirdAreaId = newVal
+  },
+  // 精度
+  longitude:'0',
+  setLongitude: (newVal) => {
+    $store.longitude = newVal;
+  },
+  // 纬度
+  latitude:'0',
+  setLatitude: (newVal) => {
+    $store.latitude = newVal;
+  },
+  // 地区
+  cityName:'苏州',
+  setCityName: (newVal) => {
+    $store.cityName = newVal;
+  },
+
+  //虚拟城市
+  virtualCityName: '',
+  setVirtualCityName: (newVal) => {
+    $store.virtualCityName = newVal;
+  },
+
+  //虚拟经度
+  virtualLng: '0',
+  setVirtualLng: (newVal) => {
+    $store.virtualLng = newVal;
+  },
+
+  //虚拟维度
+  virtualLat: '0',
+  setVirtualLat: (newVal) => {
+    $store.virtualLat = newVal;
+  },
+
+  // 列表总数
+  listTotal: 0,
+  setListTotal: (newVal) => {
+    $store.listTotal = newVal;
+  },
+
+  getUserPos: () => {
+    localStorage.removeItem('userLocationInfo')
+    if (getUrlParam('lat') && getUrlParam('lng') && getUrlParam('city')) {
+      const userLocationInfo = {
+        bMap_lng: getUrlParam('lng'),
+        bMap_lat: getUrlParam('lat'),
+        aMap_lng: bgps_gps(getUrlParam('lng'), getUrlParam('lat')).lng,
+        aMap_lat: bgps_gps(getUrlParam('lng'), getUrlParam('lat')).lat,
+        province: '',
+        city: getUrlParam('city'),
+        district: getUrlParam('city'),
+        formattedAddress: ''
+      }
+      $store.setLongitude(userLocationInfo.bMap_lng)
+      $store.setLatitude(userLocationInfo.bMap_lat)
+      $store.setCityName(userLocationInfo.district)
+      setStorage('userLocationInfo', userLocationInfo, 1800000)
+      $store.geListData('search')
+    } else {
+      $store.setLongitude(120.6174)
+      $store.setLatitude(31.335106)
+      $store.setCityName('苏州')
+      $store.geListData('search')
+    }
+  },
+
+  // 获取用户来源
+  getFromAndCome: async () => {
+    if (isEmpty(cookie.load('userFrom'))) {
+      const come = 'wdApp'
+      const query = {
+        HappenModule: 'Browse_Link',
+        HappenValue: localStorage.getItem('ownerBrokerInfo') ? JSON.parse(localStorage.getItem('ownerBrokerInfo')).BrokerId.toString() : "0" , // 经纪人ID
+        HappenPerson: localStorage.getItem('resumeDetail') ? JSON.parse(localStorage.getItem('resumeDetail')).Id.toString() : "0", // 用户ID
+        HappenDevice: localStorage.getItem('UA'), // 设备系统
+        Happensource: come, // 来源 群聊/朋友圈
+        HappenDate: getUrlParam('sharedate') ? getUrlParam('sharedate') : ''
+      }
+      try {
+        const response = await happenCounts(query);
+        console.log(response)
+        if (response.Code === 0) {
+          console.log('存')
+          cookie.save('userFrom', come, {
+            path: '/',
+            maxAge: getRTime(),
+          });
+        }
+      } catch (err) {
+        console.log(err.Desc);
+      }
+    }
+  },
+
+  // 是否到底了
+  isEnd: false,
+  geListData: async type => {
+    if (isEmpty(getStorage('userLocationInfo')) && $store.longitude === '0') {
+      $store.getUserPos();
+      return
+    } else if (!isEmpty(getStorage('userLocationInfo'))) {
+      console.log(getStorage('userLocationInfo'))
+      // alert(`缓存district：${getStorage('userLocationInfo').district},缓存city：${getStorage('userLocationInfo').city},`)
+      $store.setLongitude(getStorage('userLocationInfo').bMap_lng)
+      $store.setLatitude(getStorage('userLocationInfo').bMap_lat)
+      $store.setCityName(getStorage('userLocationInfo').district)
+    }
+    const choiceId =
+      $store.choiceList.length > 0
+        ? $store.choiceList.map((v) => v.professional_id)
+        : $store.firstPostSearch.map((v) => v.professional_id);
+    const query = {
+      RecordIndex: type==="search" ? 0 : $store.ToList.length,
+      RecordSize: 10,
+      Lng: Number($store.longitude),
+      Lat: Number($store.latitude),
+      VirtualLng: Number($store.virtualLng),
+      VirtualLat: Number($store.virtualLat),
+      SearchName: $store.searchName,
+      SortType: $store.SortId,
+      SalaryRoundId: $store.SalaryRoundId,
+      IndustryId: choiceId.length > 0 ||
+      ($store.postList.length > 0 &&
+        $store.IndustryId === $store.postList[0].industry_id)
+        ? 0
+        : $store.IndustryId,
+      ProfessionalIds: choiceId,
+      AreaId: $store.AreaId,
+      Pneumonia: $store.isPneumonia ? 1 : 0
+    };
+
+    try {
+      const res = await getList(query);
+      if (res.Code === 0) {
+        // 使用runInAction
+        runInAction(() => {
+          $store.setListTotal(res.Data.RecordCount)
+          if (type === TypeForGetListData.Search) {
+            $store.ToList = res.Data.RecordList || [];
+          } else {
+            $store.ToList = $store.ToList.concat(
+              res.Data.RecordList || []
+            );
+          }
+          const realData = res.Data.RecordList.filter(e => {
+            return e.Type === 0
+          })
+          $store.isEnd = realData.length < query.RecordSize ? true : false;
+          window.ontouchmove="";
+        })
+      }
+    } catch (e) {}
+  },
+  // 获取职位列表
+  getPostList: async () => {
+    if ($store.postList.length > 0) return
+    const query = {
+      UserSign: localStorage.getItem('userSign'),
+    };
+    try {
+      const response = await getPost(query);
+      if (response.Code === 0) {
+        runInAction(() => {
+          $store.postList = response.Data.RecordList;
+          $store.IndustryId = $store.postList[0].industry_id;
+          $store.PersonalIndustryId = $store.postList[0].industry_id;
+          toJS($store.postList).map((v) => {
+            if (v.industry_id === $store.IndustryId) {
+              $store.allPost = v.professionals;
+            }
+          });
+        })
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  },
+  // 是否经纪人分享进入
+  isFromApp: async () => {
+    localStorage.removeItem('ownerBrokerInfo')
+    if (getUrlParam('broker_name') && getUrlParam('mobile') && getUrlParam('sign') && getUrlParam('hiredate')) {
+      const _brokerName = getUrlParam('broker_name');
+      const _mobile = getUrlParam('mobile');
+      const _sign = getUrlParam('sign');
+      const _hiredate = getUrlParam('hiredate');
+      const mySign = md5(
+        `wodedagong${_brokerName}${_mobile}${_hiredate}`
+      );
+      if (mySign === _sign) {
+        const query = { BrokerPhone: _mobile }
+        try {
+          const response = await getBroker(query);
+          if (response.Code === 0) {
+            runInAction(() => {
+              localStorage.setItem('ownerBrokerInfo', JSON.stringify(response.Data))
+              $store.getFromAndCome()
+            })
+            $store.brokerShareBind(_mobile)
+          }
+        } catch (err) {
+          console.log(err.Desc);
+        }
+      }
+    }
+  },
+  brokerShareBind: async (mobile) => {
+    const query = { BrokerPhone: mobile, UserSign: localStorage.getItem('userSign') }
+    try {
+      const response = await brokerShareBind(query);
+      if (response.Code === 0) {
+        runInAction(() => {
+          localStorage.setItem('userSign', response.Data.UserSign);
+          $store.happenCountsFunc(mobile)
+        })
+      }
+    } catch (err) {
+      console.log(err.Desc);
+    }
+  },
+  // 用户行为埋点
+  happenCountsFunc: async  (mobile) => {
+    if (isEmpty(cookie.load('shareBrowse'))) {
+      const query = {
+        HappenModule: 'BrokerShare',
+        HappenValue: 'browse',
+        HappenPerson: mobile,
+        HappenDevice: localStorage.getItem('UA'),
+        Happensource: 'H5',
+      }
+      try {
+        const response = await happenCounts(query);
+        if (response.Code === 0) {
+          runInAction(() => {
+            cookie.save('shareBrowse', mobile, {
+              path: '/',
+              maxAge: getRTime(),
+            });
+          })
+        }
+      } catch (err) {
+        console.log(err.Desc);
+      }
+    }
+  },
+
+  // 微信分享配置
+  wxShareConfig: async () => {
+    // 对url进行编码
+    let localUrl = window.location.href.split('#')[0]
+    // url传到后台格式
+    let url = localUrl
+    // 后台需要从微信公众平台获取的参数
+    try {
+      const response = await getWXShareParam({url});
+      if (response.Code === 0) {
+        // 得到参数
+        let appId = response.Data.Signature.Sppid
+        let nonceStr = response.Data.Signature.NonceStr
+        let signature = response.Data.Signature.Signature
+        let timestamp = response.Data.Signature.TimeStamp
+        // 通过微信config接口注入配置
+        wx.config({
+          debug: false, // 默认为false  为true的时候是调试模式，会打印出日志
+          appId: appId,
+          timestamp: timestamp,
+          nonceStr: nonceStr,
+          signature: signature,
+          jsApiList: [
+            'checkJsApi',
+            'onMenuShareTimeline',
+            'onMenuShareAppMessage',
+            'onMenuShareQQ',
+            'onMenuShareWeibo'
+          ]
+        })
+        try {
+          const response2 = await getShareText({});
+          let brokerName = getUrlParam('broker_name')
+          let content = !isEmpty(brokerName) ? (brokerName + '良心推荐：' + response2.Data.Content) : response2.Data.Content
+          // 配置自定义分享内容
+          window.share_config = {
+            share: {
+              imgUrl: 'http://recruit-public.oss-cn-shanghai.aliyuncs.com/tmp/4c5529b4ae4723c3a8920976225526fb.jpg', // 这里是需要展示的图标
+              desc: content, // 这是分享展示的摘要
+              title: response2.Data.Title, // 这是分享展示卡片的标题
+              link: window.location.href.split('#')[0], // 这里是分享的网址
+            }
+          }
+          console.log(share_config)
+          wx.ready(function() {
+            wx.onMenuShareAppMessage(share_config.share)//  分享给好友
+            wx.onMenuShareTimeline(share_config.share)//  分享到朋友圈
+            wx.onMenuShareQQ(share_config.share)//  分享给手机QQ
+          })
+          wx.error(function(res) {
+            console.log(res)
+          })
+        } catch (err) {
+
+        }
+      }
+    } catch (err) {
+      console.log('error:' + err.Desc);
+    }
+  }
+}, {
+  geListData: action,
+  getPostList: action,
+  isFromApp: action,
+  getFromAndCome: action,
+  wxShareConfig: action
+});
+
+export default $store;

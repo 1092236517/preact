@@ -1,0 +1,54 @@
+{
+  "name": "root",
+  "version": "0.0.15",
+  "private": true,
+  "engines": {
+    "node": ">=10.16.0 <11.0.0",
+    "npm": ">=6.9.0",
+    "yarn": ">=1.16.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    }
+  },
+  "scripts": {
+    "build": "npm run check-update && node ./scripts/build.js",
+    "check-update": "node ./scripts/check_update.js",
+    "commit": "git-cz",
+    "fix:changelog": "replace \"http://git.woda.ink///\" \"http://git.woda.ink/recruit/web/h5-native/\" CHANGELOG.md",
+    "prettier": "node ./scripts/prettier.js",
+    "release": "standard-version"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "commitplease": {
+    "nohook": true,
+    "style": "angular"
+  },
+  "standard-version": {
+    "scripts": {
+      "postchangelog": "npm run fix:changelog"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^8.0.0",
+    "@commitlint/config-conventional": "^8.0.0",
+    "chalk": "^2.4.2",
+    "commitizen": "^3.1.1",
+    "commitplease": "^3.2.0",
+    "conventional-changelog-conventionalcommits": "^3.0.2",
+    "cross-env": "^6.0.3",
+    "cz-conventional-changelog": "2.1.0",
+    "execa": "^2.0.2",
+    "husky": "^2.4.1",
+    "lerna": "^3.20.2",
+    "replace": "^1.1.5",
+    "rimraf": "^2.6.3",
+    "standard-version": "^6.0.1",
+    "wodax-update-notifier": "0.17.8"
+  }
+}

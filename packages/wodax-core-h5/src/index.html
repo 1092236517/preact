@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title><% preact.title %></title>
+	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+  <meta name='viewport' content='width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover' />
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="keys" content="">
+	<meta name="desc" content="">
+	<!-- <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css"/> -->
+  <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=76013a0c128ec26e020123c6e8485ada&plugin=AMap.Geocoder"></script>
+  <script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key=MGPBZ-JMLWQ-UE754-GG7QE-FRW67-Z7BKD"></script>
+  <script type="text/javascript" src="https://3gimg.qq.com/lightmap/components/geolocation/geolocation.min.js"></script>
+  <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+  <style>
+    #app{
+      height:100vh;
+      padding-top: constant(safe-area-inset-top);
+      padding-left: constant(safe-area-inset-left);
+      padding-right: constant(safe-area-inset-right);
+      padding-bottom: constant(safe-area-inset-bottom);
+      padding-top: env(safe-area-inset-top);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  </style>
+
+<!-- GrowingIO Analytics code version 2.1 -->
+<!-- Copyright 2015-2018 GrowingIO, Inc. More info available at http://www.growingio.com -->
+
+<script type="text/javascript">
+  !function(e,t,n,g,i){e[i]=e[i]||function(){(e[i].q=e[i].q||[]).push(arguments)},n=t.createElement("script"),tag=t.getElementsByTagName("script")[0],n.async=1,n.src=('https:'==document.location.protocol?'https://':'http://')+g,tag.parentNode.insertBefore(n,tag)}(window,document,"script","assets.giocdn.com/2.1/gio.js","gio");
+    gio('init','a0a871cba02bf7b0', {
+      'imp':false,
+      'hashtag':true
+    });
+
+    //custom page code begin here
+    if (localStorage.getItem('resumeDetail')) {
+      gio('setUserId', JSON.parse(localStorage.getItem('resumeDetail')).Id.toString());
+    } else {
+      gio('clearUserId');
+    }
+    //custom page code end here
+
+    gio('send');
+
+  </script>
+
+  <!-- End GrowingIO Analytics code version: 2.1 -->
+
+	<% preact.headEnd %>
+</head>
+
+<body style="margin: 0 !important">
+	<% preact.bodyEnd %>
+  <div style="display: none;">
+    <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? "https://" : "http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1278029580'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s9.cnzz.com/z_stat.php%3Fid%3D1278029580' type='text/javascript'%3E%3C/script%3E"));</script>
+  </div>
+  <script>
+    const ua = andriodOrIOS(navigator.userAgent.toLowerCase())
+    document.addEventListener("DOMContentLoaded",function(){
+      let locationSearch = ''
+      if (window.location.pathname.indexOf('/detail') !== -1 && localStorage.getItem('locationSearch').length > 0) {
+        locationSearch = localStorage.getItem('locationSearch')
+      } else {
+        localStorage.setItem('locationSearch', window.location.search)
+      }
+      localStorage.setItem('UA', ua) //记录用户的设备
+    });
+    function andriodOrIOS(ua) {
+      // 判断是否是苹果手机，是则是true
+      let isIos = (ua.indexOf('iphone') !== -1) || (ua.indexOf('ipad') !== -1)
+      if (isIos) {
+        return 'Iphone'
+      } else {
+        return 'Andriod'
+      }
+    }
+    let isReset = true;//是否归为
+    if (ua === 'Iphone') {
+      document.body.addEventListener('focusin', () => {
+        //软键盘弹出的事件处理
+        isReset = false;
+      });
+      document.body.addEventListener('focusout', () => {
+        //软键盘收起的事件处理
+        isReset = true;
+        setTimeout(() => {
+          //当焦点在弹出层的输入框之间切换时先不归位
+          if (isReset) {
+            window.scroll(0, 0);//失焦后强制让页面归位
+          }
+        }, 300);
+      });
+    } else if (ua === 'Andriod') {
+      window.onresize = function () {
+        //键盘弹起与隐藏都会引起窗口的高度发生变化
+        let resizeHeight = document.documentElement.clientHeight || document.body.clientHeight;
+        if (resizeHeight < h) {
+          //当软键盘弹起，在此处操作
+          isReset = false;
+        } else {
+          //当软键盘收起，在此处操作
+          isReset = true;
+          setTimeout(() => {
+            if (isReset) {
+              window.scroll(0, 0);//失焦后强制让页面归位
+            }
+          }, 300);
+        }
+      }
+    }
+
+
+  </script>
+</body>
+</html>

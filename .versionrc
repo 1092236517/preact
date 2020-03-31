@@ -1,0 +1,13 @@
+{
+  "types": [
+    {"type":"feat","section":"新特性"},
+    {"type":"fix","section":"Bugs修复"},
+    {"type":"test","section":"测试", "hidden": false},
+    {"type":"chore","section":"维护", "hidden": false},
+    {"type":"refactor","section":"代码重构", "hidden": false},
+    {"type":"style","section":"样式变化", "hidden": false},
+    {"type":"perf","section":"改善", "hidden": false},
+    {"type":"build","section":"构建系统", "hidden": true},
+    {"type":"ci","hidden":true}
+  ]
+}
